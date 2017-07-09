@@ -1,0 +1,5 @@
+---
+server:
+    packages: [ 'htop', 'curl', 'apt-transport-https' ]
+    timezone: 'UTC'
+    locale: en_US.UTF-8

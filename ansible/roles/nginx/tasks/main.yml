@@ -1,0 +1,53 @@
+---
+  - name: Add nginx key
+    become: true
+    apt_key: url={{ nginx.repository.key }} state=present
+    when: nginx.upstream_repository
+
+  - name: Add nginx repository
+    become: true
+    apt_repository: repo={{ nginx.repository.url }} state=present
+    when: nginx.upstream_repository
+
+  - name: Install nginx
+    become: true
+    apt: pkg=nginx state=latest update_cache=true
+    notify:
+        - Start nginx
+
+  - name: Create web group
+    become: true
+    group: name=www state=present
+
+  - name: Create web user
+    become: true
+    user: name=www group=www state=present home=/usr/share/nginx/html
+
+  - name: Change default site permissions
+    become: true
+    file: path=/usr/share/nginx/html owner=www group=www
+
+  - name: Remove official config
+    become: true
+    file: dest=/etc/nginx state=absent
+
+  - name: Add h5bp config
+    become: true
+    copy: src=config/ dest=/etc/nginx owner=root group=root
+
+  - name: Disable default site
+    become: true
+    file: dest=/etc/nginx/sites-enabled/default state=absent
+    notify:
+        - Reload nginx
+
+  - name: Disable default configuration
+    become: true
+    file: dest=/etc/nginx/sites-enabled/default state=absent
+    notify:
+        - Reload nginx
+
+  - include_role: name=virtualhost
+    vars:
+        virtualhosts:
+          - { domain: 'default', template: 'no-host.j2' }

@@ -1,0 +1,31 @@
+  - name: Configure socket file users
+    become: true
+    lineinfile: dest=/etc/php/{{ php.version }}/fpm/pool.d/{{ item.filename }}
+               regexp='^user ='
+               line='user = {{ webserver.user }}'
+               state=present
+    with_items: "{{ php.fpm_pools }}"
+
+  - name: Configure socket file groups
+    become: true
+    lineinfile: dest=/etc/php/{{ php.version }}/fpm/pool.d/{{ item.filename }}
+            regexp='^group ='
+            line='group = {{ webserver.group }}'
+            state=present
+    with_items: "{{ php.fpm_pools }}"
+
+  - name: Configure fpm user
+    become: true
+    lineinfile: dest=/etc/php/{{ php.version }}/fpm/pool.d/{{ item.filename }}
+           regexp='^listen.owner ='
+           line='listen.owner = {{ item.user }}'
+           state=present
+    with_items: "{{ php.fpm_pools }}"
+
+  - name: Configure fpm group
+    become: true
+    lineinfile: dest=/etc/php/{{ php.version }}/fpm/pool.d/{{ item.filename }}
+        regexp='^listen.group ='
+        line='listen.group = {{ item.group }}'
+        state=present
+    with_items: "{{ php.fpm_pools }}"

@@ -1,0 +1,5 @@
+---
+server:
+    packages: ['apt-transport-https']
+    timezone: 'UTC'
+    locale: en_US.UTF-8

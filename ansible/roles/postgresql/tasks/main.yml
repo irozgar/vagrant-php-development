@@ -1,0 +1,37 @@
+---
+# Retrieve the current hostname, because {{ ansible_hostname }} still contains the old name
+  - shell: hostname
+    register: current_hostname
+
+  - name: Install PostgreSQL
+    become: true
+    apt: pkg={{ item }} state=latest update_cache=true
+    with_items:
+      - postgresql-9.6
+      - python-psycopg2 # Used by ansible
+
+  - name: Remove test users
+    become: true
+    become_user: postgres
+    postgresql_user: name='test' state=absent login_user=postgres
+
+  - name: Remove all anonymous users
+    become: true
+    become_user: postgres
+    postgresql_user: name='' state=absent
+
+  - name: Create database
+    become: true
+    become_user: postgres
+    postgresql_db: name={{ item.name }} state=present login_user=postgres login_password={{ root_password }}
+    with_items:
+      - "{{ databases }}"
+
+  - name: Create user
+    become: true
+    become_user: postgres
+    postgresql_user: name={{ item.user }} password={{ item.password }}
+               priv=ALL state=present
+               fail_on_user=yes db={{ item.name }}
+    with_items:
+      - "{{ databases }}"

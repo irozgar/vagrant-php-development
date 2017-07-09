@@ -1,0 +1,8 @@
+---
+  - name: Install curl
+    become: true
+    apt: pkg=curl state=latest update_cache=true
+
+  - name: Install composer
+    become: true
+    shell: curl -Ss https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer

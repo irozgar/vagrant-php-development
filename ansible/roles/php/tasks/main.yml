@@ -1,0 +1,35 @@
+---
+  - name: Add PHP {{ php.version }} repository key
+    become: true
+    apt_key: url={{ php.repository.key }} state=present
+
+  - name: Add PHP7 {{ php.version }} repository
+    become: true
+    apt_repository: repo={{ php.repository.url }} state=present
+
+  - name: Install PHP {{ php.version }}
+    become: true
+    apt: pkg=php{{ php.version }}-{{ item }} state=latest update_cache=true
+    with_items:
+      - "{{ php.extensions }}"
+    notify:
+      - Start php-fpm
+
+  - name: Configure timezone in PHP
+    become: true
+    lineinfile: dest=/etc/php/{{ php.version }}/{{ item }}/php.ini
+               regexp=';?date.timezone ='
+               line='date.timezone = {{ server.timezone }}'
+               state=present
+    with_items:
+      - cli
+      - fpm
+    notify:
+      - Restart php-fpm
+
+  - include: fpm-pool.yml
+    notify:
+      - Restart php-fpm
+
+  - include: composer.yml
+    when: php.install_composer

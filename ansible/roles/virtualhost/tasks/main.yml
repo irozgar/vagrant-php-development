@@ -1,0 +1,15 @@
+---
+  - name: Add sites config
+    become: true
+    template: src={{ item.template }} dest=/etc/nginx/sites-available/{{ item.domain }} owner=root group=root
+    with_items:
+      - "{{ virtualhosts }}"
+
+
+  - name: Enable sites
+    become: true
+    file: src=/etc/nginx/sites-available/{{ item.domain }} dest=/etc/nginx/sites-enabled/{{ item.domain }} state=link
+    with_items:
+      - "{{ virtualhosts }}"
+    notify:
+      - Reload nginx

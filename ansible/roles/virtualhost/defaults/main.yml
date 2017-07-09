@@ -1,0 +1,5 @@
+php:
+    version: 7.1
+
+virtualhosts:
+  - { domain: 'application.dev', template: 'site.j2', root: '/vagrant/public' }

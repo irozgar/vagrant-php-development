@@ -1,0 +1,6 @@
+---
+nginx:
+    repository:
+        key: https://nginx.org/keys/nginx_signing.key
+        url: deb http://nginx.org/packages/debian/ stretch nginx
+    upstream_repository: true
